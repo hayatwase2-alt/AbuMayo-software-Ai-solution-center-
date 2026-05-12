@@ -1,0 +1,1040 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+<title>AbuMayo – School of Spirit Science</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Cinzel+Decorative:wght@400;700&display=swap" rel="stylesheet"/>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html,body{min-height:100%;background:#0a0a0f;}
+  ::-webkit-scrollbar{width:4px;}
+  ::-webkit-scrollbar-track{background:transparent;}
+  ::-webkit-scrollbar-thumb{background:rgba(255,215,0,.2);border-radius:2px;}
+
+  @keyframes spin{to{transform:rotate(360deg);}}
+  @keyframes bounce{0%,80%,100%{transform:scale(.4);}40%{transform:scale(1);}}
+  @keyframes glow{0%,100%{filter:drop-shadow(0 0 4px #FFD700);}50%{filter:drop-shadow(0 0 12px #FFD700) drop-shadow(0 0 24px #C084FC);}}
+  @keyframes rotateSlow{to{transform:rotate(360deg);}}
+  @keyframes rotateSlowRev{to{transform:rotate(-360deg);}}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+  @keyframes pulse{0%,100%{opacity:.6;}50%{opacity:1;}}
+
+  .glow-anim{animation:glow 3s ease-in-out infinite;}
+  .rotate-slow{animation:rotateSlow 20s linear infinite;}
+  .rotate-slow-rev{animation:rotateSlowRev 20s linear infinite;}
+  .fade-up{animation:fadeUp .5s ease forwards;}
+
+  #app{
+    min-height:100vh;
+    background:linear-gradient(135deg,#0a0a0f 0%,#0d0818 40%,#0a0f14 100%);
+    color:#f0e6d3;
+    font-family:'Cinzel',serif;
+    position:relative;
+    overflow:hidden;
+  }
+
+  /* Particle canvas */
+  #particles{position:fixed;inset:0;pointer-events:none;z-index:0;}
+
+  /* Background geometry */
+  .geo-corner{position:fixed;pointer-events:none;z-index:0;}
+  .geo-tr{top:-40px;right:-40px;}
+  .geo-bl{bottom:80px;left:-40px;}
+
+  /* Header */
+  header{
+    background:rgba(10,8,20,.95);
+    border-bottom:1px solid rgba(255,215,0,.2);
+    padding:12px 16px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    position:sticky;top:0;z-index:100;
+    backdrop-filter:blur(20px);
+  }
+  .logo{display:flex;flex-direction:column;line-height:1.1;}
+  .app-name{
+    font-size:20px;font-weight:700;letter-spacing:2px;
+    background:linear-gradient(135deg,#FFD700,#FFA500,#C084FC);
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  }
+  .app-sub{font-size:8px;color:#8B6914;letter-spacing:3px;text-transform:uppercase;}
+
+  .lang-bar{display:flex;gap:4px;}
+  .lang-btn{
+    padding:4px 8px;border-radius:8px;
+    border:1px solid rgba(255,215,0,.2);
+    background:transparent;color:#8B6914;
+    font-size:10px;cursor:pointer;font-family:'Cinzel',serif;
+    transition:all .3s;
+  }
+  .lang-btn.active{
+    border-color:#FFD700;background:rgba(255,215,0,.1);color:#FFD700;
+  }
+
+  /* Page content */
+  #page-content{padding-bottom:80px;position:relative;z-index:1;}
+
+  /* Tab sections */
+  .tab-section{display:none;}
+  .tab-section.active{display:block;}
+
+  /* Hero */
+  .hero-section{padding:24px 16px;text-align:center;position:relative;}
+  .hero-title{
+    font-size:28px;font-weight:700;
+    background:linear-gradient(180deg,#FFD700 0%,#C084FC 100%);
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+    margin-bottom:8px;
+  }
+  .hero-sub{font-size:11px;color:#8B7355;letter-spacing:2px;margin-bottom:24px;}
+
+  /* Card */
+  .card{
+    background:rgba(255,255,255,.03);
+    backdrop-filter:blur(20px);
+    border:1px solid rgba(255,215,0,.15);
+    border-radius:20px;
+    padding:20px;margin:12px 16px;
+    box-shadow:0 8px 32px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,215,0,.1);
+    transition:transform .3s,box-shadow .3s;
+  }
+  .card:hover{transform:translateY(-1px);box-shadow:0 12px 40px rgba(0,0,0,.5),0 0 15px rgba(255,215,0,.1),inset 0 1px 0 rgba(255,215,0,.1);}
+
+  /* Section title / desc */
+  .section-title{
+    font-size:18px;font-weight:700;
+    background:linear-gradient(90deg,#FFD700,#C084FC);
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+    margin-bottom:6px;
+  }
+  .section-desc{font-size:11px;color:#8B7355;letter-spacing:1px;margin-bottom:16px;}
+
+  /* Textarea / input */
+  .intention-input{
+    width:100%;
+    background:rgba(255,215,0,.05);
+    border:1px solid rgba(255,215,0,.25);
+    border-radius:12px;
+    padding:14px;color:#f0e6d3;
+    font-family:'Cinzel',serif;font-size:14px;
+    resize:none;outline:none;
+    transition:border-color .3s,box-shadow .3s;
+  }
+  .intention-input:focus{border-color:rgba(255,215,0,.5);box-shadow:0 0 15px rgba(255,215,0,.1);}
+  .intention-input::placeholder{color:#4a3f2a;}
+
+  /* Generate button */
+  .gen-btn{
+    width:100%;margin-top:12px;padding:16px;
+    border-radius:14px;border:none;
+    background:linear-gradient(135deg,rgba(255,215,0,.8),rgba(192,132,252,.6));
+    color:#0a0a0f;font-family:'Cinzel',serif;
+    font-weight:700;font-size:14px;letter-spacing:2px;
+    cursor:pointer;box-shadow:0 0 20px rgba(255,215,0,.3);
+    transition:all .3s;
+  }
+  .gen-btn:hover{box-shadow:0 0 30px rgba(255,215,0,.5);transform:translateY(-1px);}
+  .gen-btn:disabled{background:rgba(255,215,0,.1);color:#8B6914;box-shadow:none;cursor:not-allowed;transform:none;}
+
+  /* Spinner */
+  .spinner-ring{
+    width:40px;height:40px;
+    border:2px solid rgba(255,215,0,.1);
+    border-top:2px solid #FFD700;
+    border-radius:50%;
+    animation:spin 1s linear infinite;
+    margin:0 auto 16px;
+  }
+  .loading-wrap{text-align:center;padding:20px;display:none;}
+  .loading-wrap.visible{display:block;}
+  .dot{
+    display:inline-block;width:6px;height:6px;border-radius:50%;
+    background:#FFD700;margin:0 3px;
+    animation:bounce 1.4s infinite ease-in-out;
+  }
+  .dot:nth-child(2){animation-delay:.2s;}
+  .dot:nth-child(3){animation-delay:.4s;}
+
+  /* Result box */
+  .result-box{
+    background:rgba(255,215,0,.05);
+    border:1px solid rgba(255,215,0,.2);
+    border-radius:12px;padding:14px;
+    margin-top:14px;font-size:13px;
+    line-height:1.7;color:#d4c5a0;
+    display:none;
+  }
+  .result-box.visible{display:block;}
+
+  /* Copy button */
+  .copy-btn{
+    margin-top:10px;padding:8px 16px;
+    border-radius:8px;border:1px solid rgba(255,215,0,.3);
+    background:transparent;color:#FFD700;
+    font-family:'Cinzel',serif;font-size:11px;cursor:pointer;
+    transition:all .3s;
+  }
+  .copy-btn:hover{background:rgba(255,215,0,.1);}
+
+  /* Quick-access grid */
+  .quick-grid{
+    margin:8px 16px;
+    display:grid;grid-template-columns:1fr 1fr;gap:10px;
+  }
+  .quick-card{
+    background:rgba(255,255,255,.03);
+    border:1px solid rgba(255,215,0,.1);
+    border-radius:14px;padding:16px;
+    text-align:center;cursor:pointer;
+    transition:all .3s;
+  }
+  .quick-card:hover{transform:translateY(-2px);box-shadow:0 12px 40px rgba(0,0,0,.5),0 0 15px rgba(255,215,0,.15);}
+  .quick-card .qi{font-size:24px;margin-bottom:8px;}
+  .quick-card .ql{font-size:11px;letter-spacing:1px;}
+
+  /* Divider */
+  .divider{height:1px;background:linear-gradient(90deg,transparent,rgba(255,215,0,.3),transparent);margin:16px 0;}
+
+  /* Contact card */
+  .contact-card{
+    background:rgba(255,215,0,.03);
+    border:1px solid rgba(255,215,0,.1);
+    border-radius:16px;padding:16px;
+    margin:12px 16px;text-align:center;
+  }
+  .contact-title{font-size:12px;color:#FFD700;letter-spacing:2px;margin-bottom:12px;}
+  .contact-item{font-size:12px;color:#8B7355;margin-bottom:6px;}
+
+  /* Sigil SVG display */
+  .sigil-wrap{text-align:center;}
+  .sigil-svg{display:block;margin:0 auto;filter:drop-shadow(0 0 10px #FFD700) drop-shadow(0 0 20px #C084FC);}
+  .sigil-label{color:#8B7355;font-size:10px;letter-spacing:2px;margin-top:8px;}
+
+  /* Magic square grid */
+  .sq-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;max-width:200px;margin:0 auto;}
+  .sq-cell{
+    background:rgba(255,215,0,.08);
+    border:1px solid rgba(255,215,0,.3);
+    border-radius:8px;padding:10px;
+    text-align:center;font-size:18px;
+    font-weight:700;color:#FFD700;
+    font-family:'Cinzel',serif;
+  }
+  .sq-constant{margin-top:12px;font-size:10px;color:#8B7355;}
+
+  /* Named squares list */
+  .sq-type-row{
+    padding:10px;border-bottom:1px solid rgba(255,215,0,.08);
+    display:flex;justify-content:space-between;align-items:center;
+  }
+  .sq-type-name{font-size:12px;color:#C084FC;}
+  .sq-type-use{font-size:10px;color:#8B7355;}
+
+  /* Angel cards */
+  .angel-list{margin:0 16px;}
+  .angel-card{
+    background:rgba(255,255,255,.03);
+    border:1px solid rgba(255,215,0,.1);
+    border-radius:14px;padding:14px;
+    margin-bottom:10px;cursor:pointer;
+    transition:all .3s;
+    display:flex;align-items:center;gap:12px;
+  }
+  .angel-card.selected{background:rgba(255,215,0,.1);border-color:rgba(255,215,0,.5);box-shadow:0 0 15px rgba(255,215,0,.2);}
+  .angel-card:hover{transform:translateY(-2px);box-shadow:0 12px 40px rgba(0,0,0,.5),0 0 15px rgba(255,215,0,.15);}
+  .angel-icon{font-size:28px;filter:drop-shadow(0 0 8px #C084FC);}
+  .angel-info{flex:1;}
+  .angel-name{font-size:15px;font-weight:700;color:#FFD700;}
+  .angel-role{font-size:10px;color:#8B7355;margin-top:2px;}
+  .angel-arrow{color:rgba(255,215,0,.3);font-size:12px;}
+
+  .angel-detail{
+    background:rgba(255,215,0,.05);border:1px solid rgba(255,215,0,.2);
+    border-radius:12px;padding:14px;
+    margin-bottom:10px;font-size:12px;line-height:1.7;color:#d4c5a0;
+    display:none;
+  }
+  .angel-detail.visible{display:block;}
+  .angel-detail-name{font-size:14px;color:#FFD700;margin-bottom:6px;}
+
+  /* Divine name cards */
+  .divine-list{margin:0 16px;}
+  .divine-card{
+    background:rgba(255,255,255,.03);
+    border:1px solid rgba(192,132,252,.1);
+    border-radius:14px;padding:14px;
+    margin-bottom:10px;cursor:pointer;
+    transition:all .3s;
+  }
+  .divine-card.selected{background:rgba(192,132,252,.1);border-color:rgba(192,132,252,.4);}
+  .divine-card:hover{transform:translateY(-2px);box-shadow:0 12px 40px rgba(0,0,0,.5),0 0 15px rgba(192,132,252,.1);}
+  .divine-ar{font-size:20px;color:#FFD700;font-family:serif;margin-bottom:4px;}
+  .divine-en{font-size:13px;color:#C084FC;}
+  .divine-mean{font-size:10px;color:#8B7355;margin-top:2px;}
+  .divine-expand{
+    margin-top:10px;padding:10px;
+    background:rgba(192,132,252,.05);
+    border-radius:8px;font-size:11px;color:#d4c5a0;
+    display:none;
+  }
+  .divine-expand.visible{display:block;}
+
+  /* Tab bar */
+  #tab-bar{
+    position:fixed;bottom:0;left:0;right:0;
+    background:rgba(8,6,16,.97);
+    border-top:1px solid rgba(255,215,0,.15);
+    display:flex;backdrop-filter:blur(20px);
+    z-index:100;padding:8px 0 12px;
+  }
+  .tab-btn{
+    flex:1;display:flex;flex-direction:column;
+    align-items:center;gap:3px;
+    background:none;border:none;cursor:pointer;
+    padding:4px 2px;color:rgba(255,215,0,.3);
+    font-family:'Cinzel',serif;font-size:7.5px;
+    letter-spacing:.5px;transition:all .3s;
+  }
+  .tab-btn.active{color:#FFD700;}
+  .tab-icon{font-size:18px;transition:all .3s;}
+  .tab-btn.active .tab-icon{filter:drop-shadow(0 0 6px #FFD700);}
+
+  /* RTL support */
+  .rtl{direction:rtl;text-align:right;}
+  .rtl .app-name,.rtl .hero-title,.rtl .section-title,.rtl .hero-sub{text-align:right;}
+  .rtl .intention-input{direction:rtl;text-align:right;}
+
+  /* Flower of life in square tab */
+  .flower-wrap{margin-bottom:16px;display:flex;justify-content:center;opacity:.2;}
+  .wafq-label{font-size:11px;color:#8B7355;letter-spacing:2px;margin-bottom:12px;text-align:center;}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- Particle Canvas -->
+  <canvas id="particles"></canvas>
+
+  <!-- Background Sacred Geometry -->
+  <div class="geo-corner geo-tr">
+    <div class="rotate-slow">
+      <svg width="200" height="200" viewBox="0 0 200 200" style="opacity:.08" id="metatron-tr"></svg>
+    </div>
+  </div>
+  <div class="geo-corner geo-bl">
+    <div class="rotate-slow-rev">
+      <svg width="180" height="180" viewBox="0 0 200 200" style="opacity:.07" id="flower-bl"></svg>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header>
+    <div class="logo">
+      <span class="app-name" id="h-appname">AbuMayo</span>
+      <span class="app-sub" id="h-subtitle">School of Spirit Science</span>
+    </div>
+    <div class="lang-bar">
+      <button class="lang-btn active" onclick="setLang('en')">EN</button>
+      <button class="lang-btn" onclick="setLang('ar')">ع</button>
+      <button class="lang-btn" onclick="setLang('am')">አማ</button>
+    </div>
+  </header>
+
+  <!-- Page Content -->
+  <div id="page-content">
+
+    <!-- ═══════════════ HOME TAB ═══════════════ -->
+    <div class="tab-section active fade-up" id="tab-home">
+      <div class="hero-section">
+        <div class="glow-anim" style="display:inline-block;margin-bottom:12px;">
+          <svg width="70" height="70" viewBox="0 0 100 100">
+            <defs>
+              <filter id="star-glow">
+                <feGaussianBlur stdDeviation="2" result="blur"/>
+                <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+              </filter>
+            </defs>
+            <polygon points="50,5 61,35 95,35 68,57 79,90 50,70 21,90 32,57 5,35 39,35"
+              fill="none" stroke="#FFD700" stroke-width="1.5" filter="url(#star-glow)"/>
+            <circle cx="50" cy="50" r="20" fill="none" stroke="#C084FC" stroke-width="1"/>
+          </svg>
+        </div>
+        <div class="hero-title" id="h-welcome">Welcome, Seeker</div>
+        <div class="hero-sub" id="h-tagline">Ancient Wisdom · Sacred Geometry · Divine Light</div>
+      </div>
+
+      <div class="card">
+        <div class="section-title">✦ <span id="h-welcome2">Welcome, Seeker</span></div>
+        <p class="section-desc" id="h-desc">Enter your intention and receive a sacred creation forged from the eternal arts of spirit science.</p>
+        <textarea class="intention-input" id="home-input" rows="3" placeholder="Enter your intention or desire…"></textarea>
+        <button class="gen-btn" id="home-gen-btn" onclick="handleGenerate('home')">Generate Sacred Art</button>
+        <div class="loading-wrap" id="home-loading">
+          <div class="spinner-ring"></div>
+          <div><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+        </div>
+        <div class="result-box" id="home-result">
+          <p id="home-result-text"></p>
+          <button class="copy-btn" id="home-copy-btn" onclick="copyText('home-result-text', this)">Copy</button>
+        </div>
+      </div>
+
+      <!-- Quick Access Grid -->
+      <div class="quick-grid">
+        <div class="quick-card" onclick="switchTab('sigil')">
+          <div class="qi">⚡</div>
+          <div class="ql" style="color:#FFD700;" id="qn-sigil">Sigils</div>
+        </div>
+        <div class="quick-card" onclick="switchTab('square')">
+          <div class="qi">⬛</div>
+          <div class="ql" style="color:#C084FC;" id="qn-square">Magic Square</div>
+        </div>
+        <div class="quick-card" onclick="switchTab('angel')">
+          <div class="qi">🕊</div>
+          <div class="ql" style="color:#87CEEB;" id="qn-angel">Angels</div>
+        </div>
+        <div class="quick-card" onclick="switchTab('divine')">
+          <div class="qi">☪</div>
+          <div class="ql" style="color:#FFD700;" id="qn-divine">Divine Names</div>
+        </div>
+      </div>
+
+      <!-- Contact -->
+      <div class="contact-card">
+        <div class="contact-title">⊕ SACRED CONTACT ⊕</div>
+        <div class="divider"></div>
+        <p class="contact-item" id="c-city">📍 Asosa Town, Benishangul-Gumuz, Ethiopia</p>
+        <p class="contact-item">📞 +251 941 263 424</p>
+        <p class="contact-item">✉ abomayoalhabeshi32@gmail.com</p>
+      </div>
+    </div>
+
+    <!-- ═══════════════ SIGIL TAB ═══════════════ -->
+    <div class="tab-section fade-up" id="tab-sigil">
+      <div class="card">
+        <div class="section-title">⚡ <span id="sigil-title">Sigil Generator</span></div>
+        <p class="section-desc" id="sigil-desc">Transform your desire into a sacred sigil of power.</p>
+        <textarea class="intention-input" id="sigil-input" rows="2" placeholder="Enter your intention or desire…"></textarea>
+        <button class="gen-btn" id="sigil-gen-btn" onclick="handleGenerate('sigil')">Generate Sacred Art</button>
+        <div class="loading-wrap" id="sigil-loading">
+          <div class="spinner-ring"></div>
+          <div><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+        </div>
+      </div>
+
+      <div class="card sigil-wrap" id="sigil-result-card" style="display:none;">
+        <svg width="200" height="200" viewBox="0 0 200 200" class="sigil-svg" id="sigil-svg">
+          <defs>
+            <filter id="sigilGlow">
+              <feGaussianBlur stdDeviation="3" result="blur"/>
+              <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
+          </defs>
+          <circle cx="100" cy="100" r="90" fill="none" stroke="rgba(255,215,0,.15)" stroke-width="1"/>
+          <circle cx="100" cy="100" r="75" fill="none" stroke="rgba(192,132,252,.1)" stroke-width="0.5"/>
+          <line x1="10" y1="100" x2="190" y2="100" stroke="rgba(255,215,0,.08)" stroke-width="0.5"/>
+          <line x1="100" y1="10" x2="100" y2="190" stroke="rgba(255,215,0,.08)" stroke-width="0.5"/>
+          <line x1="27" y1="27" x2="173" y2="173" stroke="rgba(255,215,0,.08)" stroke-width="0.5"/>
+          <line x1="173" y1="27" x2="27" y2="173" stroke="rgba(255,215,0,.08)" stroke-width="0.5"/>
+          <path id="sigil-path" d="" fill="none" stroke="#FFD700" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" filter="url(#sigilGlow)"/>
+          <path id="sigil-path2" d="" fill="none" stroke="#C084FC" stroke-width="0.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.6"/>
+          <g id="sigil-dots"></g>
+          <circle cx="100" cy="100" r="8" fill="none" stroke="#FFD700" stroke-width="1.5" filter="url(#sigilGlow)"/>
+        </svg>
+        <div class="sigil-label" id="sigil-label">SIGIL OF ·</div>
+        <div class="result-box visible" id="sigil-result" style="display:block;">
+          <p id="sigil-result-text"></p>
+          <button class="copy-btn" onclick="copyText('sigil-result-text', this)">Copy</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div style="font-size:12px;color:#8B7355;line-height:1.8;" id="sigil-instruction">
+          Enter your intention clearly. The more specific, the more powerful the sigil. Meditate on it at sunrise for activation.
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════ MAGIC SQUARE TAB ═══════════════ -->
+    <div class="tab-section fade-up" id="tab-square">
+      <div class="card">
+        <div class="section-title">⬛ <span id="sq-title">Magic Square</span></div>
+        <p class="section-desc" id="sq-desc">Ancient numerical matrices aligned to your intention.</p>
+        <textarea class="intention-input" id="sq-input" rows="2" placeholder="Enter your intention or desire…"></textarea>
+        <button class="gen-btn" id="sq-gen-btn" onclick="handleGenerate('square')">Generate Sacred Art</button>
+        <div class="loading-wrap" id="sq-loading">
+          <div class="spinner-ring"></div>
+          <div><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+        </div>
+      </div>
+
+      <div class="card" id="sq-result-card" style="display:none;text-align:center;">
+        <div class="flower-wrap">
+          <svg width="100" height="100" viewBox="0 0 200 200">
+            <circle cx="100" cy="100" r="40" fill="none" stroke="#FFD700" stroke-width="0.8"/>
+            <circle cx="100" cy="60" r="40" fill="none" stroke="#FFD700" stroke-width="0.8"/>
+            <circle cx="100" cy="140" r="40" fill="none" stroke="#FFD700" stroke-width="0.8"/>
+            <circle cx="134" cy="80" r="40" fill="none" stroke="#FFD700" stroke-width="0.8"/>
+            <circle cx="66" cy="80" r="40" fill="none" stroke="#FFD700" stroke-width="0.8"/>
+            <circle cx="134" cy="120" r="40" fill="none" stroke="#FFD700" stroke-width="0.8"/>
+            <circle cx="66" cy="120" r="40" fill="none" stroke="#FFD700" stroke-width="0.8"/>
+            <circle cx="100" cy="100" r="70" fill="none" stroke="#C084FC" stroke-width="0.5"/>
+          </svg>
+        </div>
+        <div class="wafq-label">✦ WAFQ · وفق · ዋፍቅ ✦</div>
+        <div class="sq-grid" id="sq-grid"></div>
+        <div class="sq-constant" id="sq-constant"></div>
+        <div class="result-box" id="sq-result" style="margin-top:14px;">
+          <p id="sq-result-text"></p>
+        </div>
+      </div>
+
+      <div class="card">
+        <div style="font-size:12px;color:#FFD700;margin-bottom:8px;" id="sq-types-title">Types of Magic Squares</div>
+        <div id="sq-types-list"></div>
+      </div>
+    </div>
+
+    <!-- ═══════════════ ANGEL TAB ═══════════════ -->
+    <div class="tab-section fade-up" id="tab-angel">
+      <div class="card">
+        <div class="section-title">🕊 <span id="angel-title">Archangels</span></div>
+        <p class="section-desc" id="angel-desc">Invoke the celestial guardians of the divine realm.</p>
+      </div>
+      <div class="angel-list" id="angel-list"></div>
+    </div>
+
+    <!-- ═══════════════ DIVINE NAMES TAB ═══════════════ -->
+    <div class="tab-section fade-up" id="tab-divine">
+      <div class="card">
+        <div class="section-title">☪ <span id="divine-title">Divine Names</span></div>
+        <p class="section-desc" id="divine-desc">The 99 Names of Allah — keys to the divine.</p>
+      </div>
+      <div class="divine-list" id="divine-list"></div>
+    </div>
+
+  </div><!-- /page-content -->
+
+  <!-- Tab Bar -->
+  <nav id="tab-bar">
+    <button class="tab-btn active" onclick="switchTab('home')" id="tb-home">
+      <span class="tab-icon">✦</span>
+      <span id="tb-home-lbl">Home</span>
+    </button>
+    <button class="tab-btn" onclick="switchTab('sigil')" id="tb-sigil">
+      <span class="tab-icon">⚡</span>
+      <span id="tb-sigil-lbl">Sigils</span>
+    </button>
+    <button class="tab-btn" onclick="switchTab('square')" id="tb-square">
+      <span class="tab-icon">⬛</span>
+      <span id="tb-square-lbl">Magic Square</span>
+    </button>
+    <button class="tab-btn" onclick="switchTab('angel')" id="tb-angel">
+      <span class="tab-icon">🕊</span>
+      <span id="tb-angel-lbl">Angels</span>
+    </button>
+    <button class="tab-btn" onclick="switchTab('divine')" id="tb-divine">
+      <span class="tab-icon">☪</span>
+      <span id="tb-divine-lbl">Divine Names</span>
+    </button>
+  </nav>
+
+</div><!-- /app -->
+
+<script>
+// ─── Translations ──────────────────────────────────────────────────────────────
+const T = {
+  en:{
+    dir:"ltr",appName:"AbuMayo",subtitle:"School of Spirit Science",
+    tagline:"Ancient Wisdom · Sacred Geometry · Divine Light",
+    nav:{home:"Home",sigil:"Sigils",square:"Magic Square",angel:"Angels",divine:"Divine Names"},
+    home:{welcome:"Welcome, Seeker",
+      desc:"Enter your intention and receive a sacred creation forged from the eternal arts of spirit science.",
+      intention:"Enter your intention or desire…",generate:"Generate Sacred Art",generating:"Channeling energies…"},
+    sigil:{title:"Sigil Generator",desc:"Transform your desire into a sacred sigil of power."},
+    square:{title:"Magic Square",desc:"Ancient numerical matrices aligned to your intention."},
+    angel:{title:"Archangels",desc:"Invoke the celestial guardians of the divine realm."},
+    divine:{title:"Divine Names",desc:"The 99 Names of Allah — keys to the divine."},
+    contact:{city:"Asosa Town, Benishangul-Gumuz, Ethiopia"},
+    angels:["Jibril (Gabriel)","Mika'il (Michael)","Israfil","Azrael","Munkar","Nakir","Ridwan","Malik"],
+    angelDesc:["Revelation & Wisdom","Provision & Mercy","The Trumpet Bearer","Angel of Transition","Guardian of Questions","Guardian of Questions","Keeper of Paradise","Keeper of Hell-Fire"],
+    angelIcons:["✨","⚔️","🌟","🌙","👁","👁","🌸","🔥"],
+    angelDetail:[
+      "Jibril governs Revelation & Wisdom. Invoke by reciting Bismillah 7 times and calling their name at dawn.",
+      "Mika'il governs Provision & Mercy. Invoke by reciting Bismillah 7 times and calling their name at dawn.",
+      "Israfil governs The Trumpet. Invoke by reciting Bismillah 7 times and calling their name at dawn.",
+      "Azrael governs Transition. Invoke by reciting Bismillah 7 times and calling their name at dawn.",
+      "Munkar guards the questions of the grave. Invoke by reciting Bismillah 7 times and calling their name at dawn.",
+      "Nakir guards the questions of the grave. Invoke by reciting Bismillah 7 times and calling their name at dawn.",
+      "Ridwan keeps Paradise. Invoke by reciting Bismillah 7 times and calling their name at dawn.",
+      "Malik keeps Hell-Fire. Invoke by reciting Bismillah 7 times and calling their name at dawn."
+    ],
+    divineNames:["Ar-Rahman","Ar-Rahim","Al-Malik","Al-Quddus","As-Salam","Al-Mu'min","Al-Aziz","Al-Jabbar","Al-Mutakabbir","Al-Khaliq"],
+    divineMean:["The Most Gracious","The Most Merciful","The King","The Most Holy","The Source of Peace","The Guardian of Faith","The Almighty","The Compeller","The Majestic","The Creator"],
+    sqTypes:[{name:"Al-Buni's Square",use:"Protection & Wisdom"},{name:"Jupiter Square",use:"Wealth & Success"},{name:"Saturn Square",use:"Removing Obstacles"}],
+    sigilInstruction:"Enter your intention clearly. The more specific, the more powerful the sigil. Meditate on it at sunrise for activation.",
+    sqTypesTitle:"Types of Magic Squares",
+    copy:"Copy",copied:"Copied!",
+    results:[
+      s=>`Your sacred sigil has been forged. The energies of "${s}" have been crystallized into divine geometry. Recite this intention 7 times at dawn for maximum potency.`
+    ]
+  },
+  ar:{
+    dir:"rtl",appName:"أبو مايو",subtitle:"مدرسة علم الروح",
+    tagline:"الحكمة القديمة · الهندسة المقدسة · النور الإلهي",
+    nav:{home:"الرئيسية",sigil:"الطلاسم",square:"المربع السحري",angel:"الملائكة",divine:"الأسماء الإلهية"},
+    home:{welcome:"مرحباً أيها الساعي",
+      desc:"أدخل نيتك واستقبل إبداعاً مقدساً مصنوعاً من الفنون الأبدية لعلم الروح.",
+      intention:"أدخل نيتك أو رغبتك…",generate:"توليد الفن المقدس",generating:"استجلاب الطاقات…"},
+    sigil:{title:"مولد الطلاسم",desc:"حوّل رغبتك إلى طلسم مقدس من القوة."},
+    square:{title:"المربع السحري",desc:"مصفوفات عددية قديمة متوافقة مع نيتك."},
+    angel:{title:"الملائكة الكرام",desc:"استدعِ الحراس السماويين للعالم الإلهي."},
+    divine:{title:"الأسماء الإلهية",desc:"أسماء الله الحسنى — مفاتيح الإلهي."},
+    contact:{city:"مدينة أسوسا، بنيشانغول غوموز، إثيوبيا"},
+    angels:["جبريل","ميكائيل","إسرافيل","عزرائيل","منكر","نكير","رضوان","مالك"],
+    angelDesc:["الوحي والحكمة","الرزق والرحمة","حامل الصور","ملك الوفاة","سائل القبر","سائل القبر","حارس الجنة","حارس النار"],
+    angelIcons:["✨","⚔️","🌟","🌙","👁","👁","🌸","🔥"],
+    angelDetail:[
+      "الملاك جبريل هو الموكل بالوحي والحكمة. استدعه بقراءة بسم الله ٧ مرات.",
+      "الملاك ميكائيل هو الموكل بالرزق والرحمة. استدعه بقراءة بسم الله ٧ مرات.",
+      "الملاك إسرافيل هو الموكل بنفخ الصور. استدعه بقراءة بسم الله ٧ مرات.",
+      "الملاك عزرائيل هو الموكل بقبض الأرواح. استدعه بقراءة بسم الله ٧ مرات.",
+      "الملاك منكر موكل بسؤال القبر. استدعه بقراءة بسم الله ٧ مرات.",
+      "الملاك نكير موكل بسؤال القبر. استدعه بقراءة بسم الله ٧ مرات.",
+      "الملاك رضوان حارس الجنة. استدعه بقراءة بسم الله ٧ مرات.",
+      "الملاك مالك حارس النار. استدعه بقراءة بسم الله ٧ مرات."
+    ],
+    divineNames:["الرحمن","الرحيم","الملك","القدوس","السلام","المؤمن","العزيز","الجبار","المتكبر","الخالق"],
+    divineMean:["ذو الرحمة الواسعة","ذو الرحمة الخاصة","الملك المطلق","المنزه عن كل نقص","مصدر السلام","الموهب الأمان","العزيز القوي","الجابر لكل كسر","ذو الكبرياء","الخالق من العدم"],
+    sqTypes:[{name:"مربع البوني",use:"للحماية والحكمة"},{name:"مربع المشتري",use:"للثروة والنجاح"},{name:"مربع زحل",use:"لإزالة العقبات"}],
+    sigilInstruction:"أدخل نيتك بوضوح. كلما كانت النية أوضح، كان الطلسم أقوى. تأمل فيه عند الفجر للتفعيل.",
+    sqTypesTitle:"أنواع المربعات السحرية",
+    copy:"نسخ",copied:"تم النسخ!",
+    results:[s=>`تم إنشاء طلسمك المقدس. طاقات "${s}" تبلورت في هندسة إلهية. اقرأ هذه النية 7 مرات عند الفجر لأقصى فاعلية.`]
+  },
+  am:{
+    dir:"ltr",appName:"አቡ ማዮ",subtitle:"የነፍስ ሳይንስ ትምህርት ቤት",
+    tagline:"ጥንታዊ ጥበብ · ቅዱስ ሂሳብ · መለኮታዊ ብርሃን",
+    nav:{home:"መነሻ",sigil:"ምልክቶች",square:"ማጂክ አደባባይ",angel:"መላዕክት",divine:"መለኮታዊ ስሞች"},
+    home:{welcome:"እንኳን ደህና መጡ ፈላጊ",
+      desc:"ዓላማዎን ያስገቡ እና ከነፍስ ሳይንስ ዘላለማዊ ጥበቦች የተሰራ ቅዱስ ፍጥረት ይቀበሉ።",
+      intention:"ዓላማዎን ወይም ፍላጎትዎን ያስገቡ…",generate:"ቅዱስ ጥበብ ፍጠር",generating:"ኃይሎችን እየጠቀሰ…"},
+    sigil:{title:"ምልክት ፈጣሪ",desc:"ፍላጎትዎን ወደ ኃይል ቅዱስ ምልክት ይቀይሩ።"},
+    square:{title:"ማጂክ አደባባይ",desc:"ለዓላማዎ የተስማሙ ጥንታዊ ቁጥሮ ድርደራዎች።"},
+    angel:{title:"ሊቀ መላዕክት",desc:"የመለኮቱ ሰማያዊ ጠባቂዎችን ይጥሩ።"},
+    divine:{title:"መለኮታዊ ስሞች",desc:"99 የአላህ ስሞች — ወደ ጸጋው ቁልፎች።"},
+    contact:{city:"አሶሳ ከተማ፣ ቤኒሻንጉል ጉሙዝ፣ ኢትዮጵያ"},
+    angels:["ጂብሪል","ሚካኤል","ኢስራፊል","ዐዝራዒል","ሙንከር","ነኪር","ሪዷን","ማሊክ"],
+    angelDesc:["ራዕይ እና ጥበብ","ምግብ እና ምህረት","ቀንዱ ተሸካሚ","የሽግግር መልአክ","የጥያቄ ጠባቂ","የጥያቄ ጠባቂ","የጀነት ጠባቂ","የናር ጠባቂ"],
+    angelIcons:["✨","⚔️","🌟","🌙","👁","👁","🌸","🔥"],
+    angelDetail:[
+      "ጂብሪል ራዕይ እና ጥበብ ኃላፊነት አለው። 7 ጊዜ ቢስሚላህ ብለው ፀሐይ ስትወጣ ይጥሩ።",
+      "ሚካኤል ምግብ እና ምህረት ኃላፊነት አለው። 7 ጊዜ ቢስሚላህ ብለው ፀሐይ ስትወጣ ይጥሩ።",
+      "ኢስራፊል ቀንዱ ኃላፊነት አለው። 7 ጊዜ ቢስሚላህ ብለው ፀሐይ ስትወጣ ይጥሩ።",
+      "ዐዝራዒል የሽግግር ኃላፊነት አለው። 7 ጊዜ ቢስሚላህ ብለው ፀሐይ ስትወጣ ይጥሩ።",
+      "ሙንከር የጥያቄ ጠባቂ ነው። 7 ጊዜ ቢስሚላህ ብለው ፀሐይ ስትወጣ ይጥሩ።",
+      "ነኪር የጥያቄ ጠባቂ ነው። 7 ጊዜ ቢስሚላህ ብለው ፀሐይ ስትወጣ ይጥሩ።",
+      "ሪዷን የጀነት ጠባቂ ነው። 7 ጊዜ ቢስሚላህ ብለው ፀሐይ ስትወጣ ይጥሩ።",
+      "ማሊክ የናር ጠባቂ ነው። 7 ጊዜ ቢስሚላህ ብለው ፀሐይ ስትወጣ ይጥሩ።"
+    ],
+    divineNames:["አር-ረሕማን","አር-ረሒም","አል-ማሊክ","አል-ቁዱስ","አስ-ሰላም","አል-ሙዕሚን","አል-ዐዚዝ","አል-ጀባር","አል-ሙተከቢር","አል-ኻሊቅ"],
+    divineMean:["እጅግ ቸሩ","እጅግ መሐሪው","ንጉሱ","እጅግ ቅዱሱ","የሰላም ምንጭ","የእምነት ጠባቂ","ሁሉን ቻሉ","አስገዳጁ","ታላቁ","ፈጣሪው"],
+    sqTypes:[{name:"የቡኒ አደባባይ",use:"ለጥበቃ"},{name:"የጁፒተር አደባባይ",use:"ለሀብት"},{name:"የሳተርን አደባባይ",use:"ደርድሮችን ለማስወገድ"}],
+    sigilInstruction:"ዓላማዎን በግልጽ ያስገቡ። ዓላማው ግልጽ በሆነ ቁጥር ምልክቱ ይበልጥ ኃይለኛ ይሆናል። ለማስነሳት ፀሐይ ስትወጣ ያስቡ።",
+    sqTypesTitle:"የማጂክ አደባባይ ዓይነቶች",
+    copy:"ቅዳ",copied:"ተቀድቷል!",
+    results:[s=>`ቅዱስ ምልክትዎ ተሠርቷል። "${s}" ኃይሎች ወደ መለኮታዊ ሂሳብ ተለውጠዋል። ከፍተኛ ኃይል ለማግኘት ፀሐይ ስትወጣ 7 ጊዜ ይድገሙ።`]
+  }
+};
+
+// ─── State ─────────────────────────────────────────────────────────────────────
+let lang = 'en';
+let currentTab = 'home';
+let selectedAngel = null;
+let selectedDivine = null;
+let isLoading = false;
+const arDivineNames = ["الرحمن","الرحيم","الملك","القدوس","السلام","المؤمن","العزيز","الجبار","المتكبر","الخالق"];
+
+// ─── Sigil Generation ──────────────────────────────────────────────────────────
+function generateSigilPath(text){
+  const clean = text.toUpperCase().replace(/[^A-Z\u0600-\u06FF\u1200-\u137F]/g,"");
+  const points=[], used=new Set();
+  for(let i=0;i<clean.length;i++){
+    const code=clean.charCodeAt(i), idx=code%9;
+    if(!used.has(idx)){
+      used.add(idx);
+      const angle=(idx/9)*Math.PI*2-Math.PI/2;
+      points.push({x:100+70*Math.cos(angle),y:100+70*Math.sin(angle)});
+    }
+  }
+  if(points.length<2){
+    for(let i=0;i<5;i++){
+      const angle=(i/5)*Math.PI*2;
+      points.push({x:100+70*Math.cos(angle),y:100+70*Math.sin(angle)});
+    }
+  }
+  let d=`M ${points[0].x} ${points[0].y}`;
+  for(let i=1;i<points.length;i++){
+    const cp1x=points[i-1].x+(Math.random()-.5)*40;
+    const cp1y=points[i-1].y+(Math.random()-.5)*40;
+    d+=` Q ${cp1x} ${cp1y} ${points[i].x} ${points[i].y}`;
+  }
+  return {d,points};
+}
+
+function generateMagicSquare(seed){
+  const n=3, sq=Array.from({length:n},()=>Array(n).fill(0));
+  let num=1,row=0,col=Math.floor(n/2);
+  const offset=seed%7;
+  while(num<=n*n){
+    sq[row][col]=num++;
+    let nr=(row-1+n)%n, nc=(col+1)%n;
+    if(sq[nr][nc]){ nr=(row+1)%n; nc=col; }
+    row=nr; col=nc;
+  }
+  return sq.map(r=>r.map(v=>v+offset));
+}
+
+// ─── Language ──────────────────────────────────────────────────────────────────
+function setLang(l){
+  lang=l;
+  const t=T[l];
+  const app=document.getElementById('app');
+  // RTL
+  app.className = l==='ar' ? 'rtl' : '';
+
+  // Header
+  document.getElementById('h-appname').textContent=t.appName;
+  document.getElementById('h-subtitle').textContent=t.subtitle;
+  document.querySelectorAll('.lang-btn').forEach((b,i)=>{
+    b.classList.toggle('active',['en','ar','am'][i]===l);
+  });
+
+  // Hero
+  document.getElementById('h-welcome').textContent=t.home.welcome;
+  document.getElementById('h-tagline').textContent=t.tagline;
+  document.getElementById('h-welcome2').textContent=t.home.welcome;
+  document.getElementById('h-desc').textContent=t.home.desc;
+
+  // Inputs placeholder
+  document.querySelectorAll('.intention-input').forEach(el=>{
+    el.placeholder=t.home.intention;
+    el.style.direction=t.dir;
+    el.style.textAlign=t.dir==='rtl'?'right':'left';
+  });
+
+  // Buttons
+  document.querySelectorAll('.gen-btn').forEach(b=>{
+    if(!b.disabled) b.textContent=t.home.generate;
+  });
+
+  // Quick nav
+  document.getElementById('qn-sigil').textContent=t.nav.sigil;
+  document.getElementById('qn-square').textContent=t.nav.square;
+  document.getElementById('qn-angel').textContent=t.nav.angel;
+  document.getElementById('qn-divine').textContent=t.nav.divine;
+
+  // Contact city
+  document.getElementById('c-city').textContent='📍 '+t.contact.city;
+
+  // Section titles/descs
+  document.getElementById('sigil-title').textContent=t.sigil.title;
+  document.getElementById('sigil-desc').textContent=t.sigil.desc;
+  document.getElementById('sigil-instruction').textContent=t.sigilInstruction;
+  document.getElementById('sq-title').textContent=t.square.title;
+  document.getElementById('sq-desc').textContent=t.square.desc;
+  document.getElementById('sq-types-title').textContent=t.sqTypesTitle;
+  document.getElementById('angel-title').textContent=t.angel.title;
+  document.getElementById('angel-desc').textContent=t.angel.desc;
+  document.getElementById('divine-title').textContent=t.divine.title;
+  document.getElementById('divine-desc').textContent=t.divine.desc;
+
+  // Tab labels
+  document.getElementById('tb-home-lbl').textContent=t.nav.home;
+  document.getElementById('tb-sigil-lbl').textContent=t.nav.sigil;
+  document.getElementById('tb-square-lbl').textContent=t.nav.square;
+  document.getElementById('tb-angel-lbl').textContent=t.nav.angel;
+  document.getElementById('tb-divine-lbl').textContent=t.nav.divine;
+
+  // Result boxes dir
+  document.querySelectorAll('.result-box').forEach(el=>{
+    el.style.direction=t.dir;
+    el.style.textAlign=t.dir==='rtl'?'right':'left';
+  });
+
+  // Re-render angel list
+  renderAngels();
+  renderDivineNames();
+  renderSquareTypes();
+
+  // Update any existing angel detail
+  if(selectedAngel!==null) showAngelDetail(selectedAngel);
+}
+
+// ─── Tab Switching ─────────────────────────────────────────────────────────────
+function switchTab(tab){
+  currentTab=tab;
+  document.querySelectorAll('.tab-section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  const sec=document.getElementById('tab-'+tab);
+  if(sec){ sec.classList.add('active'); sec.classList.remove('fade-up'); void sec.offsetWidth; sec.classList.add('fade-up'); }
+  const btn=document.getElementById('tb-'+tab);
+  if(btn) btn.classList.add('active');
+}
+
+// ─── Generate ──────────────────────────────────────────────────────────────────
+function handleGenerate(source){
+  if(isLoading) return;
+  const inputId = source==='home'?'home-input':source==='sigil'?'sigil-input':'sq-input';
+  const text = document.getElementById(inputId).value.trim();
+  if(!text) return;
+
+  isLoading=true;
+  const t=T[lang];
+
+  // Show loading
+  const loadId = source==='home'?'home-loading':source==='sigil'?'sigil-loading':'sq-loading';
+  const btnId = source==='home'?'home-gen-btn':source==='sigil'?'sigil-gen-btn':'sq-gen-btn';
+  document.getElementById(loadId).classList.add('visible');
+  const btn=document.getElementById(btnId);
+  btn.disabled=true; btn.textContent=t.home.generating;
+
+  setTimeout(()=>{
+    isLoading=false;
+    document.getElementById(loadId).classList.remove('visible');
+    btn.disabled=false; btn.textContent=t.home.generate;
+
+    const resultText=t.results[0](text);
+    const seed=text.split('').reduce((a,c)=>a+c.charCodeAt(0),0);
+
+    if(source==='home'){
+      const rb=document.getElementById('home-result');
+      document.getElementById('home-result-text').textContent=resultText;
+      rb.style.display='block'; rb.style.direction=t.dir; rb.style.textAlign=t.dir==='rtl'?'right':'left';
+    }
+
+    if(source==='sigil'||source==='home'){
+      const sd=generateSigilPath(text);
+      document.getElementById('sigil-path').setAttribute('d',sd.d);
+      document.getElementById('sigil-path2').setAttribute('d',sd.d);
+      const dotsEl=document.getElementById('sigil-dots');
+      dotsEl.innerHTML='';
+      sd.points.forEach((p,i)=>{
+        const c=document.createElementNS('http://www.w3.org/2000/svg','circle');
+        c.setAttribute('cx',p.x); c.setAttribute('cy',p.y); c.setAttribute('r','4');
+        c.setAttribute('fill',i===0?'#FFD700':'rgba(192,132,252,0.8)');
+        c.setAttribute('filter','url(#sigilGlow)');
+        dotsEl.appendChild(c);
+      });
+      document.getElementById('sigil-label').textContent='SIGIL OF · '+text.toUpperCase().slice(0,20);
+      document.getElementById('sigil-result-text').textContent=resultText;
+      document.getElementById('sigil-result-card').style.display='block';
+      // sync sigil input
+      if(source==='home') document.getElementById('sigil-input').value=text;
+    }
+
+    if(source==='square'||source==='home'){
+      const sq=generateMagicSquare(seed);
+      const grid=document.getElementById('sq-grid');
+      grid.innerHTML='';
+      sq.flat().forEach(v=>{
+        const d=document.createElement('div');
+        d.className='sq-cell'; d.textContent=v; grid.appendChild(d);
+      });
+      const magic=sq[0].reduce((a,b)=>a+b,0);
+      document.getElementById('sq-constant').textContent='Σ = '+magic+' (Magic Constant)';
+      const sqr=document.getElementById('sq-result');
+      document.getElementById('sq-result-text').textContent=resultText;
+      sqr.style.display='block'; sqr.style.direction=t.dir;
+      document.getElementById('sq-result-card').style.display='block';
+      if(source==='home') document.getElementById('sq-input').value=text;
+    }
+  },1800);
+}
+
+// ─── Copy ──────────────────────────────────────────────────────────────────────
+function copyText(elId, btn){
+  const text=document.getElementById(elId)?.textContent||'';
+  navigator.clipboard.writeText(text).catch(()=>{});
+  const orig=btn.textContent;
+  btn.textContent=T[lang].copied;
+  setTimeout(()=>btn.textContent=orig,2000);
+}
+function copyStr(str, btn){
+  navigator.clipboard.writeText(str).catch(()=>{});
+  const orig=btn.textContent;
+  btn.textContent=T[lang].copied;
+  setTimeout(()=>btn.textContent=orig,2000);
+}
+
+// ─── Angels ───────────────────────────────────────────────────────────────────
+function renderAngels(){
+  const t=T[lang];
+  const list=document.getElementById('angel-list');
+  list.innerHTML='';
+  t.angels.forEach((name,i)=>{
+    const card=document.createElement('div');
+    card.className='angel-card'+(selectedAngel===i?' selected':'');
+    card.id='angel-card-'+i;
+    card.innerHTML=`
+      <div class="angel-icon">${t.angelIcons[i]}</div>
+      <div class="angel-info">
+        <div class="angel-name">${name}</div>
+        <div class="angel-role">${t.angelDesc[i]}</div>
+      </div>
+      <div class="angel-arrow">${selectedAngel===i?'▲':'▼'}</div>
+    `;
+    card.onclick=()=>toggleAngel(i);
+    list.appendChild(card);
+
+    const detail=document.createElement('div');
+    detail.className='angel-detail'+(selectedAngel===i?' visible':'');
+    detail.id='angel-detail-'+i;
+    detail.innerHTML=`<div class="angel-detail-name">✦ ${name}</div><p>${t.angelDetail[i]}</p>`;
+    list.appendChild(detail);
+  });
+}
+
+function toggleAngel(i){
+  selectedAngel = selectedAngel===i ? null : i;
+  renderAngels();
+}
+
+function showAngelDetail(i){
+  renderAngels();
+}
+
+// ─── Divine Names ─────────────────────────────────────────────────────────────
+function renderDivineNames(){
+  const t=T[lang];
+  const list=document.getElementById('divine-list');
+  list.innerHTML='';
+  t.divineNames.forEach((name,i)=>{
+    const card=document.createElement('div');
+    card.className='divine-card'+(selectedDivine===i?' selected':'');
+    const expandHtml=selectedDivine===i?`
+      <div class="divine-expand visible">
+        ${lang==='ar'
+          ?`اقرأ "${arDivineNames[i]}" ١٠٠ مرة يوميًا لاستجلاب ${t.divineMean[i]} في حياتك.`
+          :lang==='am'
+          ?`"${name}" ቀን በቀን 100 ጊዜ ደጋግሙ።`
+          :`Recite "${name}" 100 times daily to invoke ${t.divineMean[i]} into your life.`
+        }
+        <br/>
+        <button class="copy-btn" style="margin-top:6px;" onclick="event.stopPropagation();copyStr('${arDivineNames[i]}',this)">${t.copy}</button>
+      </div>
+    `:'';
+    card.innerHTML=`
+      <div class="divine-ar">${arDivineNames[i]}</div>
+      <div class="divine-en">${T.en.divineNames[i]}</div>
+      <div class="divine-mean">${t.divineMean[i]}</div>
+      ${expandHtml}
+    `;
+    card.onclick=()=>toggleDivine(i);
+    list.appendChild(card);
+  });
+}
+
+function toggleDivine(i){
+  selectedDivine = selectedDivine===i ? null : i;
+  renderDivineNames();
+}
+
+// ─── Square Types ─────────────────────────────────────────────────────────────
+function renderSquareTypes(){
+  const t=T[lang];
+  const list=document.getElementById('sq-types-list');
+  list.innerHTML='';
+  t.sqTypes.forEach(sq=>{
+    const row=document.createElement('div');
+    row.className='sq-type-row';
+    row.innerHTML=`<div><div class="sq-type-name">${sq.name}</div><div class="sq-type-use">${sq.use}</div></div><span style="color:rgba(255,215,0,.3);font-size:20px;">⊞</span>`;
+    list.appendChild(row);
+  });
+}
+
+// ─── Background SVGs ───────────────────────────────────────────────────────────
+function buildMetatron(svgEl){
+  const ns='http://www.w3.org/2000/svg';
+  [0,60,120,180,240,300].forEach(a=>{
+    const r=Math.PI*a/180;
+    const x=100+60*Math.cos(r), y=100+60*Math.sin(r);
+    const c=document.createElementNS(ns,'circle');
+    c.setAttribute('cx',x);c.setAttribute('cy',y);c.setAttribute('r','40');
+    c.setAttribute('fill','none');c.setAttribute('stroke','#FFD700');c.setAttribute('stroke-width','0.6');
+    svgEl.appendChild(c);
+    const l=document.createElementNS(ns,'line');
+    l.setAttribute('x1','100');l.setAttribute('y1','100');l.setAttribute('x2',x);l.setAttribute('y2',y);
+    l.setAttribute('stroke','#FFD700');l.setAttribute('stroke-width','0.4');
+    svgEl.appendChild(l);
+  });
+  const c=document.createElementNS(ns,'circle');
+  c.setAttribute('cx','100');c.setAttribute('cy','100');c.setAttribute('r','40');
+  c.setAttribute('fill','none');c.setAttribute('stroke','#FFD700');c.setAttribute('stroke-width','0.6');
+  svgEl.appendChild(c);
+  const c2=document.createElementNS(ns,'circle');
+  c2.setAttribute('cx','100');c2.setAttribute('cy','100');c2.setAttribute('r','100');
+  c2.setAttribute('fill','none');c2.setAttribute('stroke','#C084FC');c2.setAttribute('stroke-width','0.4');
+  svgEl.appendChild(c2);
+}
+
+function buildFlower(svgEl){
+  const ns='http://www.w3.org/2000/svg';
+  [[100,100],[100,60],[100,140],[134,80],[66,80],[134,120],[66,120]].forEach(([cx,cy])=>{
+    const c=document.createElementNS(ns,'circle');
+    c.setAttribute('cx',cx);c.setAttribute('cy',cy);c.setAttribute('r','40');
+    c.setAttribute('fill','none');c.setAttribute('stroke','#FFD700');c.setAttribute('stroke-width','0.8');
+    svgEl.appendChild(c);
+  });
+  const c=document.createElementNS(ns,'circle');
+  c.setAttribute('cx','100');c.setAttribute('cy','100');c.setAttribute('r','70');
+  c.setAttribute('fill','none');c.setAttribute('stroke','#C084FC');c.setAttribute('stroke-width','0.5');
+  svgEl.appendChild(c);
+}
+
+// ─── Particle System ───────────────────────────────────────────────────────────
+function initParticles(){
+  const canvas=document.getElementById('particles');
+  const ctx=canvas.getContext('2d');
+  function resize(){ canvas.width=window.innerWidth; canvas.height=window.innerHeight; }
+  resize();
+  window.addEventListener('resize',resize);
+  const particles=Array.from({length:40},()=>({
+    x:Math.random()*canvas.width, y:Math.random()*canvas.height,
+    r:Math.random()*1.5+0.3,
+    vx:(Math.random()-.5)*.3, vy:-Math.random()*.5-.1,
+    alpha:Math.random(),
+    color:Math.random()>.5?'#FFD700':'#C084FC'
+  }));
+  function draw(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    particles.forEach(p=>{
+      p.x+=p.vx; p.y+=p.vy;
+      p.alpha+=(Math.random()-.5)*.02;
+      if(p.alpha<0)p.alpha=0;
+      if(p.alpha>.8)p.alpha=.8;
+      if(p.y<0){p.y=canvas.height;p.x=Math.random()*canvas.width;}
+      ctx.beginPath();
+      ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fillStyle=p.color;
+      ctx.globalAlpha=p.alpha;
+      ctx.fill();
+    });
+    ctx.globalAlpha=1;
+    requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+// ─── Init ──────────────────────────────────────────────────────────────────────
+buildMetatron(document.getElementById('metatron-tr'));
+buildFlower(document.getElementById('flower-bl'));
+initParticles();
+renderAngels();
+renderDivineNames();
+renderSquareTypes();
+</script>
+</body>
+</html>
