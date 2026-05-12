@@ -1,2 +1,3 @@
-# AbuMayo-software-Ai-solution-center-
+አቡ ማዮ (AbuMayo) የሶፍትዌር እና የኤ አይ (AI) መፍትሔ ማዕከል
+"አቡ ማዮ በአሶሳ ከተማ የሚገኝ የቴክኖሎጂ ማዕከል ሲሆን፣ ዋና ዓላማውም በአሶሳ እና በቤኒሻንጉል ጉሙዝ ክልል የሚገኙ የንግድ ድርጅቶች ዘመናዊ የቴክኖሎጂ አማራጮችን ተጠቅመው ስራቸውን እንዲያሳድጉ መርዳት ነው። ድርጅታችን የንግድ ድርጅቶችን በጎግል ማፕ ላይ የማስተዋወቅ፣ ፈጣን ድረ-ገጾችን የመገንባት እና አርቲፊሻል ኢንተለጀንስን (AI) በመጠቀም የንግድ አሰራርን የማዘመን ስራዎችን በብቃት ይከውናል።"# AbuMayo-software-Ai-solution-center-
 "AbuMayo Software &amp; AI Solution Center is a local tech hub dedicated to helping Asosa businesses grow. We specialize in putting businesses on the digital map, building high-speed websites, and using smart technology to simplify your daily operations—all tailored to the unique needs of our region."
